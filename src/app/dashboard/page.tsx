@@ -6,6 +6,8 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { getTopTracks, getTopArtists } from "@/lib/spotify"
 import Image from "next/image"
 import Aurora from "@/components/Aurora"
+import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer"
+import SpotifyPlayer from "@/components/SpotifyPlayer"
 
 interface SpotifyArtist {
   id: string
@@ -16,6 +18,7 @@ interface SpotifyArtist {
 interface SpotifyTrack {
   id: string
   name: string
+  uri: string
   artists: { name: string }[]
   album: { images: { url: string }[] }
 }
@@ -29,8 +32,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("Top Music")
   
-  // Cache for different time periods
-  const [cache, setCache] = useState<{
+  // Cache for different time periods using ref to avoid dependency issues
+  const cacheRef = useRef<{
     [key: string]: {
       artists: { items: SpotifyArtist[] } | null
       tracks: { items: SpotifyTrack[] } | null
@@ -46,6 +49,9 @@ export default function DashboardPage() {
   const [artistsCanScrollRight, setArtistsCanScrollRight] = useState(true)
   const [tracksCanScrollLeft, setTracksCanScrollLeft] = useState(false)
   const [tracksCanScrollRight, setTracksCanScrollRight] = useState(true)
+  
+  // Spotify Web Playback SDK
+  const { playTrack, togglePlayback, isReady, isPlaying, currentTrack } = useSpotifyPlayer()
   
   const checkScrollability = (element: HTMLDivElement, setCanScrollLeft: (value: boolean) => void, setCanScrollRight: (value: boolean) => void) => {
     const { scrollLeft, scrollWidth, clientWidth } = element
@@ -73,6 +79,35 @@ export default function DashboardPage() {
     }
   }
   
+  // Handle track playback
+  const handlePlayTrack = (track: SpotifyTrack) => {
+    if (!isReady) {
+      console.log('Player not ready')
+      return
+    }
+    
+    // If this track is currently playing, pause it
+    if (isTrackPlaying(track)) {
+      togglePlayback()
+    } else if (isCurrentTrack(track)) {
+      // If this is the current track but paused, resume it
+      togglePlayback()
+    } else {
+      // Otherwise, play this new track
+      playTrack(track.uri)
+    }
+  }
+  
+  // Check if a track is currently playing
+  const isTrackPlaying = (track: SpotifyTrack) => {
+    return isPlaying && currentTrack && currentTrack.id === track.id
+  }
+  
+  // Check if a track is the current track (playing or paused)
+  const isCurrentTrack = (track: SpotifyTrack) => {
+    return currentTrack && currentTrack.id === track.id
+  }
+  
   // Check initial scroll state when data loads
   useEffect(() => {
     if (topArtists && artistsScrollRef.current) {
@@ -85,7 +120,7 @@ export default function DashboardPage() {
 
   const loadSpotifyData = useCallback(async (selectedTimeRange: "short_term" | "medium_term" | "long_term") => {
     // Check if data is already cached
-    const cachedData = cache[selectedTimeRange]
+    const cachedData = cacheRef.current[selectedTimeRange]
     if (cachedData?.artists && cachedData?.tracks) {
       console.log(`Using cached data for ${selectedTimeRange}`)
       setTopArtists(cachedData.artists)
@@ -105,20 +140,20 @@ export default function DashboardPage() {
       setTopArtists(artistsData)
       setTopTracks(tracksData)
       
-      // Cache the data
-      setCache(prev => ({
-        ...prev,
+      // Cache the data in ref
+      cacheRef.current = {
+        ...cacheRef.current,
         [selectedTimeRange]: {
           artists: artistsData,
           tracks: tracksData
         }
-      }))
+      }
     } catch (error) {
       console.error("Error loading Spotify data:", error)
     } finally {
       setLoading(false)
     }
-  }, [cache])
+  }, [])
 
   const handleTimeRangeChange = (newTimeRange: "short_term" | "medium_term" | "long_term") => {
     setTimeRange(newTimeRange)
@@ -147,7 +182,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
+    <div className="min-h-screen relative bg-black">
       {/* Aurora Background */}
       <div className="absolute inset-0 z-0">
         <Aurora
@@ -225,7 +260,29 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
+        {/* Spotify Player Status */}
+        {!isReady && (
+          <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-400" />
+                <span className="text-yellow-100 text-sm">
+                  Initializing Spotify Web Player... Make sure you have Spotify Premium to play tracks.
+                </span>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="bg-red-500/70 hover:bg-red-500 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200"
+                >
+                  Re-authenticate
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white" />
@@ -363,8 +420,29 @@ export default function DashboardPage() {
                       <div className="text-center">
                         <p className="text-white font-medium text-sm mb-1 truncate">{index + 1}. {track.name}</p>
                         <p className="text-white/70 text-xs mb-2 truncate">{track.artists?.[0]?.name}</p>
-                        <button className="bg-purple-500/70 hover:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors duration-200">
-                          Play
+                        <button 
+                          onClick={() => handlePlayTrack(track)}
+                          disabled={!isReady}
+                          className={`p-2 rounded-full transition-all duration-200 group ${
+                            !isReady 
+                              ? "bg-gray-500/50 text-gray-300 cursor-not-allowed" 
+                              : isTrackPlaying(track)
+                              ? "bg-green-500/80 text-white hover:bg-green-500"
+                              : "bg-white/20 text-white hover:bg-white/30 hover:scale-105"
+                          }`}
+                          aria-label={isTrackPlaying(track) ? "Currently playing" : "Play track"}
+                        >
+                          {!isReady ? (
+                            <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
+                          ) : isTrackPlaying(track) ? (
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="m7 4 10 6L7 16V4z"/>
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -377,6 +455,9 @@ export default function DashboardPage() {
         )}
       </main>
       </div>
+      
+      {/* Spotify Player */}
+      <SpotifyPlayer />
     </div>
   )
 }

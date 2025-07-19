@@ -34,3 +34,33 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Safari and Chrome */
 }
+
+/* Optimize scrolling performance and prevent flickering */
+.scrollbar-hide {
+  scroll-behavior: smooth;
+  will-change: scroll-position;
+  transform: translateZ(0);
+}
+
+/* Prevent repainting during state changes */
+.bg-white\/10, .bg-white\/20, .bg-black\/20, .bg-black\/50 {
+  will-change: background-color;
+  transform: translateZ(0);
+}
+
+/* Optimize Aurora canvas rendering */
+canvas {
+  image-rendering: optimizeSpeed;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+}
+
+/* Ensure Spotify player appears above all content */
+.spotify-player {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+}

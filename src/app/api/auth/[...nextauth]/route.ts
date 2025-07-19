@@ -8,7 +8,7 @@ const authOptions = {
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
       authorization: {
         params: {
-          scope: "user-read-email user-read-private user-top-read user-read-recently-played playlist-read-private"
+          scope: "user-read-email user-read-private user-top-read user-read-recently-played playlist-read-private streaming user-modify-playback-state"
         }
       }
     })

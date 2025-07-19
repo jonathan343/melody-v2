@@ -165,7 +165,7 @@ export default function Aurora(props: AuroraProps) {
     const renderer = new Renderer({
       alpha: true,
       premultipliedAlpha: true,
-      antialias: true,
+      antialias: false, // Reduce GPU load
     });
     
     const gl = renderer.gl;
@@ -173,21 +173,32 @@ export default function Aurora(props: AuroraProps) {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = "transparent";
+    gl.canvas.style.position = "absolute";
+    gl.canvas.style.top = "0";
+    gl.canvas.style.left = "0";
+    gl.canvas.style.width = "100%";
+    gl.canvas.style.height = "100%";
+    gl.canvas.style.pointerEvents = "none"; // Prevent interference with UI
 
     // eslint-disable-next-line prefer-const
     let program: Program | undefined;
+    let resizeTimeout: NodeJS.Timeout;
 
     const resize = () => {
-      if (!ctn) return;
-      const width = ctn.offsetWidth;
-      const height = ctn.offsetHeight;
-      renderer.setSize(width, height);
-      if (program) {
-        program.uniforms.uResolution.value = [width, height];
-      }
+      // Debounce resize to prevent excessive calls
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (!ctn) return;
+        const width = ctn.offsetWidth;
+        const height = ctn.offsetHeight;
+        renderer.setSize(width, height);
+        if (program) {
+          program.uniforms.uResolution.value = [width, height];
+        }
+      }, 16); // ~60fps
     };
     
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", resize, { passive: true });
 
     const geometry = new Triangle(gl);
     if (geometry.attributes.uv) {
@@ -246,6 +257,7 @@ export default function Aurora(props: AuroraProps) {
 
     return () => {
       cancelAnimationFrame(animateId);
+      clearTimeout(resizeTimeout);
       window.removeEventListener("resize", resize);
       
       if (ctn && gl.canvas.parentNode === ctn) {
@@ -254,7 +266,8 @@ export default function Aurora(props: AuroraProps) {
       
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [rotationSpeed, gradientIntensity, gradientSize, turbulence, pulsing, colorStops]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove dependencies to prevent re-mounting WebGL context
 
   return <div ref={ctnDom} className="w-full h-full" />;
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
 
@@ -28,6 +29,25 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Script
+          id="spotify-sdk-setup"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.onSpotifyWebPlaybackSDKReady = () => {
+                console.log('Spotify SDK Ready - callback fired');
+                window.spotifySDKReady = true;
+                if (window.initializeSpotifyPlayer) {
+                  window.initializeSpotifyPlayer();
+                }
+              };
+            `,
+          }}
+        />
+        <Script
+          src="https://sdk.scdn.co/spotify-player.js"
+          strategy="beforeInteractive"
+        />
         <AuthProvider>
           {children}
         </AuthProvider>
