@@ -182,19 +182,21 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-black">
-      {/* Aurora Background */}
-      <div className="absolute inset-0 z-0">
+    <>
+      {/* Aurora Background - Fixed to viewport */}
+      <div className="fixed inset-0 z-0">
         <Aurora
-                  colorStops={["#00dbde", "#7209b7", "#fc00ff"]}
-                  rotationSpeed={0.75}
-                  gradientIntensity={1.0}
-                  gradientSize={1.2}
-                  turbulence={0.25}
-                  pulsing={0.000}
-                  speed={1.0}
-                />
+          colorStops={["#00dbde", "#7209b7", "#fc00ff"]}
+          rotationSpeed={0.75}
+          gradientIntensity={1.0}
+          gradientSize={1.2}
+          turbulence={0.25}
+          pulsing={0.000}
+          speed={1.0}
+        />
       </div>
+      
+      <div className="min-h-screen relative bg-transparent" style={{ paddingBottom: '120px' }}>
       
       {/* Content Overlay */}
       <div className="relative z-10">
@@ -458,6 +460,7 @@ export default function DashboardPage() {
       
       {/* Spotify Player */}
       <SpotifyPlayer />
-    </div>
+      </div>
+    </>
   )
 }
