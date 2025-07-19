@@ -8,6 +8,7 @@ import Image from "next/image"
 import Aurora from "@/components/Aurora"
 import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer"
 import SpotifyPlayer from "@/components/SpotifyPlayer"
+import ArtistInfoModal from "@/components/ArtistInfoModal"
 
 interface SpotifyArtist {
   id: string
@@ -31,6 +32,10 @@ export default function DashboardPage() {
   const [topTracks, setTopTracks] = useState<{ items: SpotifyTrack[] } | null>(null)
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("Top Music")
+  
+  // Artist info modal state
+  const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(null)
+  const [isArtistModalOpen, setIsArtistModalOpen] = useState(false)
   
   // Cache for different time periods using ref to avoid dependency issues
   const cacheRef = useRef<{
@@ -106,6 +111,17 @@ export default function DashboardPage() {
   // Check if a track is the current track (playing or paused)
   const isCurrentTrack = (track: SpotifyTrack) => {
     return currentTrack && currentTrack.id === track.id
+  }
+  
+  // Handle artist info modal
+  const handleArtistInfo = (artist: SpotifyArtist) => {
+    setSelectedArtist(artist)
+    setIsArtistModalOpen(true)
+  }
+  
+  const closeArtistModal = () => {
+    setIsArtistModalOpen(false)
+    setSelectedArtist(null)
   }
   
   // Check initial scroll state when data loads
@@ -356,7 +372,10 @@ export default function DashboardPage() {
                       </div>
                       <div className="text-center">
                         <p className="text-white font-medium text-sm mb-1">{index + 1}. {artist.name}</p>
-                        <button className="bg-purple-500/70 hover:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors duration-200">
+                        <button 
+                          onClick={() => handleArtistInfo(artist)}
+                          className="bg-purple-500/70 hover:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors duration-200"
+                        >
                           About
                         </button>
                       </div>
@@ -470,6 +489,14 @@ export default function DashboardPage() {
       
       {/* Spotify Player */}
       <SpotifyPlayer />
+      
+      {/* Artist Info Modal */}
+      <ArtistInfoModal
+        isOpen={isArtistModalOpen}
+        onClose={closeArtistModal}
+        artistName={selectedArtist?.name || ''}
+        artistImage={selectedArtist?.images?.[0]?.url}
+      />
       </div>
     </>
   )
