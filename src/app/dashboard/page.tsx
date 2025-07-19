@@ -329,7 +329,12 @@ export default function DashboardPage() {
                   <div 
                     ref={artistsScrollRef} 
                     className="flex gap-4 overflow-x-auto scrollbar-hide pb-4" 
-                    style={{ scrollSnapType: 'x mandatory' }}
+                    style={{ 
+                      scrollSnapType: 'x mandatory', 
+                      padding: '8px 12px',
+                      scrollPaddingLeft: '12px',
+                      scrollPaddingRight: '12px'
+                    }}
                     onScroll={() => handleScroll(artistsScrollRef, setArtistsCanScrollLeft, setArtistsCanScrollRight)}
                   >
                     {topArtists.items?.map((artist: SpotifyArtist, index: number) => (
@@ -341,7 +346,7 @@ export default function DashboardPage() {
                             alt={artist.name}
                             fill
                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                            className="object-cover hover:scale-105 transition-transform duration-200"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full bg-white/20 rounded-lg flex items-center justify-center">
@@ -399,7 +404,12 @@ export default function DashboardPage() {
                   <div 
                     ref={tracksScrollRef} 
                     className="flex gap-4 overflow-x-auto scrollbar-hide pb-4" 
-                    style={{ scrollSnapType: 'x mandatory' }}
+                    style={{ 
+                      scrollSnapType: 'x mandatory', 
+                      padding: '8px 12px',
+                      scrollPaddingLeft: '12px',
+                      scrollPaddingRight: '12px'
+                    }}
                     onScroll={() => handleScroll(tracksScrollRef, setTracksCanScrollLeft, setTracksCanScrollRight)}
                   >
                     {topTracks.items?.map((track: SpotifyTrack, index: number) => (
@@ -411,7 +421,7 @@ export default function DashboardPage() {
                             alt={track.name}
                             fill
                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                            className="object-cover hover:scale-105 transition-transform duration-200"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full bg-white/20 rounded-lg flex items-center justify-center">
@@ -430,7 +440,7 @@ export default function DashboardPage() {
                               ? "bg-gray-500/50 text-gray-300 cursor-not-allowed" 
                               : isTrackPlaying(track)
                               ? "bg-green-500/80 text-white hover:bg-green-500"
-                              : "bg-white/20 text-white hover:bg-white/30 hover:scale-105"
+                              : "bg-white/20 text-white hover:bg-white/30"
                           }`}
                           aria-label={isTrackPlaying(track) ? "Currently playing" : "Play track"}
                         >
