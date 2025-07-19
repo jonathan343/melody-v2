@@ -1,6 +1,8 @@
 "use client";
 
 import Aurora from "../components/Aurora";
+import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -22,14 +24,21 @@ export default function Home() {
           Melody
         </h1>
         <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed">
-          Experience the harmony of sound and light with beautiful aurora effects
+          Discover your music taste with AI-powered insights and personalized recommendations from your Spotify data.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white font-medium hover:bg-white/20 transition-all duration-200">
-            Get Started
-          </button>
-          <button className="px-8 py-4 bg-transparent border border-white/30 rounded-full text-white font-medium hover:border-white/50 transition-all duration-200">
-            Learn More
+        <div className="flex justify-center">
+          <button 
+            onClick={() => signIn("spotify", { callbackUrl: "/dashboard" })}
+            className="px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/40 hover:border-spotify-green/70 rounded-full text-white font-semibold hover:scale-105 transition-all duration-150 flex items-center justify-center gap-3 shadow-2xl shadow-white/10"
+          >
+            <Image 
+              src="/spotify-logo-white.png" 
+              alt="Spotify logo" 
+              width={24} 
+              height={24} 
+              className="w-8 h-8"
+            />
+            Connect with Spotify
           </button>
         </div>
       </div>

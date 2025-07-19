@@ -174,6 +174,7 @@ export default function Aurora(props: AuroraProps) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = "transparent";
 
+    // eslint-disable-next-line prefer-const
     let program: Program | undefined;
 
     const resize = () => {
@@ -253,7 +254,7 @@ export default function Aurora(props: AuroraProps) {
       
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [rotationSpeed, gradientIntensity, gradientSize, turbulence, pulsing]);
+  }, [rotationSpeed, gradientIntensity, gradientSize, turbulence, pulsing, colorStops]);
 
   return <div ref={ctnDom} className="w-full h-full" />;
 }
