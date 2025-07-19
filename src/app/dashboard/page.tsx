@@ -14,6 +14,7 @@ interface SpotifyArtist {
   id: string
   name: string
   images: { url: string }[]
+  external_urls?: { spotify: string }
 }
 
 interface SpotifyTrack {
@@ -496,6 +497,7 @@ export default function DashboardPage() {
         onClose={closeArtistModal}
         artistName={selectedArtist?.name || ''}
         artistImage={selectedArtist?.images?.[0]?.url}
+        artistSpotifyUrl={selectedArtist?.external_urls?.spotify}
       />
       </div>
     </>
