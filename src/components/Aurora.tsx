@@ -10,6 +10,10 @@ interface AuroraProps {
   pulsing?: number;
   time?: number;
   speed?: number;
+  // Mouse following properties
+  mouseX?: number;
+  mouseY?: number;
+  mouseInfluence?: number;
 }
 
 const VERT = `#version 300 es
@@ -30,6 +34,8 @@ uniform float uGradientIntensity;
 uniform float uGradientSize;
 uniform float uTurbulence;
 uniform float uPulsing;
+uniform vec2 uMouse;
+uniform float uMouseInfluence;
 
 out vec4 fragColor;
 
@@ -69,6 +75,14 @@ float fractalNoise(vec2 p) {
 
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / min(uResolution.x, uResolution.y);
+  
+  // Mouse following effect: convert mouse coordinates to normalized space
+  vec2 mousePos = uMouse;
+  mousePos.y = uResolution.y - mousePos.y; // Flip Y (screen coords are top-down, shader coords are bottom-up)
+  vec2 mouse = (mousePos - 0.5 * uResolution.xy) / min(uResolution.x, uResolution.y);
+  
+  // Apply mouse influence to UV coordinates (negative for correct follow direction)
+  uv -= mouse * uMouseInfluence;
   
   // Apply turbulence distortion
   if(uTurbulence > 0.0) {
@@ -152,6 +166,9 @@ export default function Aurora(props: AuroraProps) {
     gradientSize = 0.8,
     turbulence = 0.0,
     pulsing = 0.0,
+    mouseX = 0,
+    mouseY = 0,
+    mouseInfluence = 0.15,
   } = props;
   const propsRef = useRef<AuroraProps>(props);
   propsRef.current = props;
@@ -222,6 +239,8 @@ export default function Aurora(props: AuroraProps) {
         uGradientSize: { value: gradientSize },
         uTurbulence: { value: turbulence },
         uPulsing: { value: pulsing },
+        uMouse: { value: [mouseX, mouseY] },
+        uMouseInfluence: { value: mouseInfluence },
       },
     });
 
@@ -242,6 +261,8 @@ export default function Aurora(props: AuroraProps) {
         program.uniforms.uGradientSize.value = currentProps.gradientSize ?? gradientSize;
         program.uniforms.uTurbulence.value = currentProps.turbulence ?? turbulence;
         program.uniforms.uPulsing.value = currentProps.pulsing ?? pulsing;
+        program.uniforms.uMouse.value = [currentProps.mouseX ?? mouseX, currentProps.mouseY ?? mouseY];
+        program.uniforms.uMouseInfluence.value = currentProps.mouseInfluence ?? mouseInfluence;
         
         const stops = currentProps.colorStops ?? colorStops;
         program.uniforms.uColorStops.value = stops.map((hex: string) => {

@@ -3,19 +3,25 @@
 import Aurora from "../components/Aurora";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
+import { useMouseFollow } from "../hooks/useMouseFollow";
 
 export default function Home() {
+  const { smoothedMousePosition } = useMouseFollow({ smoothingFactor: 0.07 });
+
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black">
       <div className="absolute inset-0 z-0">
         <Aurora
           colorStops={["#00dbde", "#7209b7", "#fc00ff"]}
-          rotationSpeed={0.75}
-          gradientIntensity={1.0}
-          gradientSize={1.2}
-          turbulence={0.25}
-          pulsing={0.000}
-          speed={1.0}
+          rotationSpeed={1}
+          gradientIntensity={0.85}
+          gradientSize={1.25}
+          turbulence={0.05}
+          pulsing={0.03}
+          speed={0.5}
+          mouseX={smoothedMousePosition.x}
+          mouseY={smoothedMousePosition.y}
+          mouseInfluence={0.5}
         />
       </div>
       

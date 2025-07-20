@@ -7,6 +7,7 @@ import { getTopTracks, getTopArtists } from "@/lib/spotify"
 import Image from "next/image"
 import Aurora from "@/components/Aurora"
 import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer"
+import { useMouseFollow } from "@/hooks/useMouseFollow"
 import SpotifyPlayer from "@/components/SpotifyPlayer"
 import ArtistInfoModal from "@/components/ArtistInfoModal"
 
@@ -26,6 +27,7 @@ interface SpotifyTrack {
 }
 
 export default function DashboardPage() {
+  const { smoothedMousePosition } = useMouseFollow({ smoothingFactor: 0.07 });
   const { data: session, status } = useSession()
   const router = useRouter()
   const [timeRange, setTimeRange] = useState<"short_term" | "medium_term" | "long_term">("medium_term")
@@ -204,12 +206,15 @@ export default function DashboardPage() {
       <div className="fixed inset-0 z-0">
         <Aurora
           colorStops={["#00dbde", "#7209b7", "#fc00ff"]}
-          rotationSpeed={0.75}
-          gradientIntensity={1.0}
-          gradientSize={1.2}
-          turbulence={0.25}
-          pulsing={0.000}
-          speed={1.0}
+          rotationSpeed={1}
+          gradientIntensity={0.85}
+          gradientSize={1.25}
+          turbulence={0.05}
+          pulsing={0.03}
+          speed={0.5}
+          mouseX={smoothedMousePosition.x}
+          mouseY={smoothedMousePosition.y}
+          mouseInfluence={0.5}
         />
       </div>
       
