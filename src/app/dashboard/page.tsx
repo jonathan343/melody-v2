@@ -453,15 +453,23 @@ export default function DashboardPage() {
                         <p className="text-white font-medium text-sm mb-1 truncate">{index + 1}. {track.name}</p>
                         <p className="text-white/70 text-xs mb-2 truncate">{track.artists?.[0]?.name}</p>
                         <button 
-                          onClick={() => handlePlayTrack(track)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handlePlayTrack(track);
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
                           disabled={!isReady}
-                          className={`p-2 rounded-full transition-all duration-200 group ${
+                          className={`p-3 rounded-full transition-all duration-200 group touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center mx-auto ${
                             !isReady 
                               ? "bg-gray-500/50 text-gray-300 cursor-not-allowed" 
                               : isTrackPlaying(track)
-                              ? "bg-green-500/80 text-white hover:bg-green-500"
-                              : "bg-white/20 text-white hover:bg-white/30"
+                              ? "bg-green-500/80 text-white hover:bg-green-500 active:bg-green-600"
+                              : "bg-white/20 text-white hover:bg-white/30 active:bg-white/40"
                           }`}
+                          style={{ touchAction: 'manipulation' }}
                           aria-label={isTrackPlaying(track) ? "Currently playing" : "Play track"}
                         >
                           {!isReady ? (
