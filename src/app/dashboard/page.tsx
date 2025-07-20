@@ -356,7 +356,7 @@ export default function DashboardPage() {
                   >
                     {topArtists.items?.map((artist: SpotifyArtist, index: number) => (
                     <div key={artist.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 hover:scale-105 transition-all duration-200 cursor-pointer flex-none w-48" style={{ scrollSnapAlign: 'start' }}>
-                      <div className="aspect-square mb-4 relative overflow-hidden rounded-lg">
+                      <div className="aspect-square mb-4 relative overflow-hidden rounded-sm lg:rounded-md">
                         {artist.images?.[0] ? (
                           <Image
                             src={artist.images[0].url}
@@ -366,7 +366,7 @@ export default function DashboardPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-white/20 rounded-lg flex items-center justify-center">
+                          <div className="w-full h-full bg-white/20 rounded-sm lg:rounded-md flex items-center justify-center">
                             <span className="text-white/50 text-2xl">🎤</span>
                           </div>
                         )}
@@ -434,7 +434,7 @@ export default function DashboardPage() {
                   >
                     {topTracks.items?.map((track: SpotifyTrack, index: number) => (
                     <div key={track.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 hover:scale-105 transition-all duration-200 cursor-pointer flex-none w-48" style={{ scrollSnapAlign: 'start' }}>
-                      <div className="aspect-square mb-4 relative overflow-hidden rounded-lg">
+                      <div className="aspect-square mb-4 relative overflow-hidden rounded-sm lg:rounded-md">
                         {track.album?.images?.[0] ? (
                           <Image
                             src={track.album.images[0].url}
@@ -444,7 +444,7 @@ export default function DashboardPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-white/20 rounded-lg flex items-center justify-center">
+                          <div className="w-full h-full bg-white/20 rounded-sm lg:rounded-md flex items-center justify-center">
                             <span className="text-white/50 text-2xl">🎵</span>
                           </div>
                         )}

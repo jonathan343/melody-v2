@@ -79,7 +79,7 @@ export default function ArtistInfoModal({ isOpen, onClose, artistName, artistIma
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-white/20">
           <div className="flex items-center space-x-3 sm:space-x-4 flex-1">
             {artistImage && (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden relative flex-shrink-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-sm lg:rounded-md overflow-hidden relative flex-shrink-0">
                 <Image
                   src={artistImage}
                   alt={artistName}
