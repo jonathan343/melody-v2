@@ -20,9 +20,18 @@ export default function Home() {
       </div>
       
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-        <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
-          Melody
-        </h1>
+        <div className="flex items-center justify-center gap-6 mb-6">
+          <Image
+            src="/melody.png"
+            alt="Melody Logo"
+            width={96}
+            height={96}
+            className="p-2"
+          />
+          <h1 className="text-6xl md:text-8xl font-bold text-white tracking-tight">
+            Melody
+          </h1>
+        </div>
         <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed">
           Discover your music taste with AI-powered insights and personalized recommendations from your Spotify data.
         </p>

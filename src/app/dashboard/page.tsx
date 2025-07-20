@@ -223,9 +223,13 @@ export default function DashboardPage() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">🎵</span>
-                </div>
+                <Image
+                  src="/melody.png"
+                  alt="Melody Logo"
+                  width={40}
+                  height={40}
+                  className="p-1"
+                />
                 <h1 className="text-xl font-semibold text-white">Melody</h1>
               </div>
             </div>
