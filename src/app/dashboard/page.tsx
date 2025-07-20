@@ -321,7 +321,7 @@ export default function DashboardPage() {
             {/* Top Artists Section */}
             {topArtists && (
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                <div className="flex items-center space-x-3 mb-6">
+                <div className="flex items-center space-x-3 mb-2">
                   <Image src="/spotify-logo-white.png" alt="Spotify" width={30} height={30} />
                   <h2 className="text-3xl font-semibold text-white">Top Artists</h2>
                 </div>
@@ -399,7 +399,7 @@ export default function DashboardPage() {
             {/* Top Tracks Section */}
             {topTracks && (
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                <div className="flex items-center space-x-3 mb-6">
+                <div className="flex items-center space-x-3 mb-2">
                   <Image src="/spotify-logo-white.png" alt="Spotify" width={30} height={30} />
                   <h2 className="text-3xl font-semibold text-white">Top Tracks</h2>
                 </div>
