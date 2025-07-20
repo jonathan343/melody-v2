@@ -313,8 +313,8 @@ export default function DashboardPage() {
             {topArtists && (
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
                 <div className="flex items-center space-x-3 mb-6">
-                  <Image src="/spotify-logo-white.png" alt="Spotify" width={24} height={24} />
-                  <h2 className="text-2xl font-semibold text-white">Top Artists</h2>
+                  <Image src="/spotify-logo-white.png" alt="Spotify" width={30} height={30} />
+                  <h2 className="text-3xl font-semibold text-white">Top Artists</h2>
                 </div>
                 <div className="relative group">
                   {/* Left Arrow */}
@@ -391,8 +391,8 @@ export default function DashboardPage() {
             {topTracks && (
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
                 <div className="flex items-center space-x-3 mb-6">
-                  <Image src="/spotify-logo-white.png" alt="Spotify" width={24} height={24} />
-                  <h2 className="text-2xl font-semibold text-white">Top Tracks</h2>
+                  <Image src="/spotify-logo-white.png" alt="Spotify" width={30} height={30} />
+                  <h2 className="text-3xl font-semibold text-white">Top Tracks</h2>
                 </div>
                 <div className="relative group">
                   {/* Left Arrow */}
