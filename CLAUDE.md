@@ -84,7 +84,8 @@ src/
 │   ├── Aurora.tsx         # WebGL Aurora background component
 │   ├── SpotifyPlayer.tsx  # Main music player UI component
 │   ├── ArtistInfoModal.tsx # Artist information modal with AI integration
-│   └── generators/        # Image generation components (planned)
+│   ├── ShareModal.tsx     # Shareable content modal with time range selection
+│   └── ShareableCard.tsx  # Canvas-based shareable card generator
 ├── hooks/
 │   ├── useSpotifyPlayer.ts # Spotify player state management hook
 │   └── useSpotifySubscription.ts # Spotify subscription status management hook
@@ -112,9 +113,9 @@ src/
   - `getRecentlyPlayed()` - Recently played tracks
   - `getRecommendations()` - Spotify recommendations
 - `/api/ai/artist-info` - AI-powered artist information using GPT-4o-mini
+- `/api/proxy-image` - CORS-safe image proxy for Spotify CDN images with base64 conversion
 - `/api/ai/analyze-lyrics` - AI lyric analysis (planned)
 - `/api/ai/music-trends` - AI trend analysis (planned)
-- `/api/generate/summary` - Generate shareable summary (planned)
 
 ### Data Storage Strategy
 
@@ -266,10 +267,23 @@ OPENAI_API_KEY=your-openai-api-key
   - Smart resume/restart logic for enhanced user experience
   - Mobile-optimized play buttons with proper touch targets (44px minimum)
   - Touch event optimization to prevent conflicts with card interactions
+- **Shareable Content Generation**:
+  - Canvas-based high-quality image generation for social media sharing
+  - Instagram Stories format (1080x1920px) optimized for mobile platforms
+  - Aurora-inspired gradient backgrounds with subtle noise texture for modern aesthetics
+  - Time range-specific card generation (Past Month, Past 6 Months, All Time)
+  - Smart data caching per time range to prevent unnecessary API calls
+  - CORS-safe image proxy API for loading Spotify CDN images in Canvas
+  - Square album artwork and artist images with rounded corners
+  - Consistent typography and spacing optimized for readability
+  - Native Web Share API integration with clipboard fallback
+  - Download functionality for saving cards locally
+  - Glass-morphism modal design with proper z-index management
+  - Responsive time range selector with visual feedback
+  - Production-ready with comprehensive error handling
 
 ### 🚧 In Progress/Planned
 - Extended AI-powered music analysis (lyrics, sentiment, trends)
-- Shareable content generation
 - Additional music analytics and visualizations
 - User preferences and customization
 - Enhanced recommendation system
