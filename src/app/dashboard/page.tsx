@@ -10,11 +10,13 @@ import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer"
 import { useMouseFollow } from "@/hooks/useMouseFollow"
 import SpotifyPlayer from "@/components/SpotifyPlayer"
 import ArtistInfoModal from "@/components/ArtistInfoModal"
+import ShareModal from "@/components/ShareModal"
 
 interface SpotifyArtist {
   id: string
   name: string
-  images: { url: string }[]
+  images: { url: string; width: number; height: number }[]
+  genres: string[]
   external_urls?: { spotify: string }
 }
 
@@ -23,7 +25,10 @@ interface SpotifyTrack {
   name: string
   uri: string
   artists: { name: string }[]
-  album: { images: { url: string }[] }
+  album: { 
+    name: string
+    images: { url: string; width: number; height: number }[] 
+  }
 }
 
 export default function DashboardPage() {
@@ -39,6 +44,9 @@ export default function DashboardPage() {
   // Artist info modal state
   const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(null)
   const [isArtistModalOpen, setIsArtistModalOpen] = useState(false)
+  
+  // Share modal state
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   
   // Cache for different time periods using ref to avoid dependency issues
   const cacheRef = useRef<{
@@ -243,7 +251,13 @@ export default function DashboardPage() {
                 {["Top Music", "Playlists", "Statistics", "Share"].map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => {
+                      if (tab === "Share") {
+                        setIsShareModalOpen(true)
+                      } else {
+                        setActiveTab(tab)
+                      }
+                    }}
                     className={`text-sm font-medium transition-colors duration-200 ${
                       activeTab === tab ? "text-white" : "text-white/70 hover:text-white"
                     }`}
@@ -515,6 +529,16 @@ export default function DashboardPage() {
         artistName={selectedArtist?.name || ''}
         artistImage={selectedArtist?.images?.[0]?.url}
         artistSpotifyUrl={selectedArtist?.external_urls?.spotify}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        topTracks={topTracks?.items?.slice(0, 10) || []}
+        topArtists={topArtists?.items?.slice(0, 10) || []}
+        timeRange={timeRange}
+        userName={session?.user?.name || undefined}
       />
       </div>
     </>
