@@ -127,12 +127,16 @@ export default function ShareModal({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white">Time Period</h3>
             <div className="flex space-x-2">
-              {Object.entries(TIME_RANGE_LABELS).map(([range, label]) => (
+              {[
+                { key: "long_term", label: "All Time" },
+                { key: "medium_term", label: "Past 6 Months" },
+                { key: "short_term", label: "Past Month" }
+              ].map(({ key, label }) => (
                 <button
-                  key={range}
-                  onClick={() => handleTimeRangeChange(range as 'short_term' | 'medium_term' | 'long_term')}
+                  key={key}
+                  onClick={() => handleTimeRangeChange(key as 'short_term' | 'medium_term' | 'long_term')}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    selectedTimeRange === range
+                    selectedTimeRange === key
                       ? 'bg-spotify-green text-black'
                       : 'bg-white/10 text-white hover:bg-white/20'
                   }`}
