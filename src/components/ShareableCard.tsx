@@ -108,68 +108,63 @@ export default function ShareableCard({ topTracks, topArtists, timeRange, userNa
     canvas.width = width;
     canvas.height = height;
 
-    // Create gradient background inspired by Aurora component
+    // Create a cleaner gradient background with better contrast
     const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, '#8B5CF6'); // Purple
-    gradient.addColorStop(0.3, '#A855F7'); // Purple-pink
-    gradient.addColorStop(0.6, '#06B6D4'); // Cyan
-    gradient.addColorStop(1, '#10B981'); // Emerald
+    gradient.addColorStop(0, '#1a1a2e'); // Dark navy
+    gradient.addColorStop(0.5, '#16213e'); // Medium navy
+    gradient.addColorStop(1, '#0f3460'); // Deep blue
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    // Add subtle noise texture for modern look
-    const imageData = ctx.getImageData(0, 0, width, height);
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      const noise = (Math.random() - 0.5) * 10;
-      imageData.data[i] += noise;     // Red
-      imageData.data[i + 1] += noise; // Green
-      imageData.data[i + 2] += noise; // Blue
+    // Add subtle pattern overlay for texture
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+    for (let i = 0; i < width; i += 4) {
+      for (let j = 0; j < height; j += 4) {
+        if (Math.random() > 0.5) {
+          ctx.fillRect(i, j, 2, 2);
+        }
+      }
     }
-    ctx.putImageData(imageData, 0, 0);
 
-    // Overlay semi-transparent rounded rectangle for content area
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    drawRoundedRect(ctx, 60, 100, width - 120, height - 200, 24);
-    ctx.fill();
+    // Header section with brand
+    const headerHeight = 300;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(0, 0, width, headerHeight);
 
-    // Load and draw Melody logo (larger for phone screen)
+    // Load and draw Melody logo
     try {
       const melodyLogo = await loadImage('/melody.png');
-      ctx.drawImage(melodyLogo, width / 2 - 40, 120, 80, 80);
-    } catch (error) {
+      ctx.drawImage(melodyLogo, width / 2 - 50, 50, 100, 100);
+    } catch {
       console.warn('Could not load Melody logo');
     }
 
-    // Title (larger for phone screen)
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 64px system-ui, -apple-system, sans-serif';
+    // Title with shadow for better readability
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 72px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Melody', width / 2, 240);
+    ctx.fillText('Melody', width / 2, 220);
 
-    // Time period (larger)
-    ctx.font = '36px system-ui, -apple-system, sans-serif';
-    ctx.fillText(TIME_RANGE_LABELS[timeRange], width / 2, 290);
+    // Time period with better contrast
+    ctx.font = 'bold 40px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#1DB954'; // Spotify green
+    ctx.fillText(TIME_RANGE_LABELS[timeRange], width / 2, 270);
 
-    // Load and draw Spotify logo (optimized for phone screen)
-    try {
-      const spotifyLogo = await loadImage('/spotify-full-logo-white.png');
-      const logoWidth = 220;
-      const logoHeight = (spotifyLogo.height / spotifyLogo.width) * logoWidth;
-      ctx.drawImage(spotifyLogo, width / 2 - logoWidth / 2, 320, logoWidth, logoHeight);
-    } catch (error) {
-      console.warn('Could not load Spotify logo');
-    }
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 
-    // Top Songs section header
-    ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'white';
-    ctx.fillText('Top Songs', width / 2, 420);
-
-    // Load album images (reduced to 4 for vertical layout)
+    // Load album images for top 5 tracks
     const albumImages: (HTMLImageElement | null)[] = [];
-    for (let i = 0; i < Math.min(4, topTracks.length); i++) {
+    for (let i = 0; i < Math.min(5, topTracks.length); i++) {
       const track = topTracks[i];
       try {
         const albumImageUrl = track.album.images[0]?.url;
@@ -180,63 +175,85 @@ export default function ShareableCard({ topTracks, topArtists, timeRange, userNa
         } else {
           albumImages[i] = null;
         }
-      } catch (error) {
+      } catch {
         albumImages[i] = null;
       }
     }
 
-    // Draw top tracks (centered for vertical layout with better spacing)
-    const trackStartY = 460;
-    const itemHeight = 140;
-    const imageSize = 80;
+    // Top Songs section with expanded height
+    const songsStartY = 340;
+    const sectionHeight = 700;
+    
+    // Songs background with rounded corners
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+    drawRoundedRect(ctx, 40, songsStartY, width - 80, sectionHeight, 20);
+    ctx.fill();
 
-    for (let i = 0; i < Math.min(4, topTracks.length); i++) {
+    // Section header with larger font
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 58px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎵 Top Songs', width / 2, songsStartY + 70);
+
+    // Draw top 5 tracks with better spacing
+    const trackItemHeight = 120;
+    const trackStartY = songsStartY + 100;
+    const imageSize = 70;
+
+    for (let i = 0; i < Math.min(5, topTracks.length); i++) {
       const track = topTracks[i];
-      const y = trackStartY + i * itemHeight;
+      const y = trackStartY + i * trackItemHeight;
 
-      // Draw album artwork
-      if (albumImages[i]) {
-        ctx.save();
-        drawRoundedRect(ctx, 120, y, imageSize, imageSize, 16);
-        ctx.clip();
-        ctx.drawImage(albumImages[i]!, 120, y, imageSize, imageSize);
-        ctx.restore();
-      } else {
-        // Draw placeholder if image fails
-        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
-        ctx.fillStyle = colors[i % colors.length];
-        drawRoundedRect(ctx, 120, y, imageSize, imageSize, 16);
-        ctx.fill();
-        
-        // Add a music note icon
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.font = '32px system-ui, -apple-system, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('♪', 120 + imageSize / 2, y + imageSize / 2 + 12);
+      // Alternating background for better separation
+      if (i % 2 === 1) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.fillRect(60, y - 10, width - 120, trackItemHeight - 20);
       }
 
-      // Track number (larger for phone screen)
-      ctx.fillStyle = 'white';
-      ctx.font = 'bold 32px system-ui, -apple-system, sans-serif';
+      // Track number as bold white text
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${i + 1}`, 100, y + imageSize / 2 + 16);
+
+      // Album artwork with larger size
+      const albumX = 140;
+      if (albumImages[i]) {
+        ctx.save();
+        drawRoundedRect(ctx, albumX, y, imageSize, imageSize, 16);
+        ctx.clip();
+        ctx.drawImage(albumImages[i]!, albumX, y, imageSize, imageSize);
+        ctx.restore();
+      } else {
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+        ctx.fillStyle = colors[i % colors.length];
+        drawRoundedRect(ctx, albumX, y, imageSize, imageSize, 16);
+        ctx.fill();
+        
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.font = '36px system-ui, -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('♪', albumX + imageSize / 2, y + imageSize / 2 + 12);
+      }
+
+      // Track name with larger typography
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 42px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(`${i + 1}.`, 70, y + 50);
+      const trackName = track.name.length > 22 ? track.name.substring(0, 22) + '...' : track.name;
+      ctx.fillText(trackName, 250, y + 35);
 
-      // Track name (larger for phone screen)
-      ctx.font = 'bold 28px system-ui, -apple-system, sans-serif';
-      const trackName = track.name.length > 35 ? track.name.substring(0, 35) + '...' : track.name;
-      ctx.fillText(trackName, 220, y + 40);
-
-      // Artist name (larger for phone screen)
-      ctx.font = '22px system-ui, -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      // Artist name with larger font
+      ctx.font = '34px system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = '#B3B3B3';
       const artistName = track.artists[0]?.name || 'Unknown Artist';
-      const displayArtist = artistName.length > 40 ? artistName.substring(0, 40) + '...' : artistName;
-      ctx.fillText(displayArtist, 220, y + 70);
+      const displayArtist = artistName.length > 26 ? artistName.substring(0, 26) + '...' : artistName;
+      ctx.fillText(displayArtist, 250, y + 75);
     }
 
-    // Load artist images (reduced to 4 for vertical layout)
+    // Load artist images for top 5 artists
     const artistImages: (HTMLImageElement | null)[] = [];
-    for (let i = 0; i < Math.min(4, topArtists.length); i++) {
+    for (let i = 0; i < Math.min(5, topArtists.length); i++) {
       const artist = topArtists[i];
       try {
         const artistImageUrl = artist.images[0]?.url;
@@ -247,72 +264,80 @@ export default function ShareableCard({ topTracks, topArtists, timeRange, userNa
         } else {
           artistImages[i] = null;
         }
-      } catch (error) {
+      } catch {
         artistImages[i] = null;
       }
     }
 
-    // Top Artists section header (much more spacing)
-    const artistSectionY = trackStartY + (4 * itemHeight) + 120;
-    ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
+    // Top Artists section with expanded height
+    const artistsStartY = songsStartY + sectionHeight + 40;
+    const artistsSectionHeight = 700;
+    
+    // Artists background
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+    drawRoundedRect(ctx, 40, artistsStartY, width - 80, artistsSectionHeight, 20);
+    ctx.fill();
+
+    // Section header with larger font
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 58px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'white';
-    ctx.fillText('Top Artists', width / 2, artistSectionY);
+    ctx.fillText('🎤 Top Artists', width / 2, artistsStartY + 70);
 
-    // Draw top artists (centered below tracks with proper spacing)
-    const artistStartY = artistSectionY + 80;
-    for (let i = 0; i < Math.min(4, topArtists.length); i++) {
+    // Draw top 5 artists
+    const artistItemHeight = 120;
+    const artistStartY = artistsStartY + 100;
+
+    for (let i = 0; i < Math.min(5, topArtists.length); i++) {
       const artist = topArtists[i];
-      const y = artistStartY + i * itemHeight;
+      const y = artistStartY + i * artistItemHeight;
 
-      // Draw artist image (square like tracks)
+      // Alternating background
+      if (i % 2 === 1) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.fillRect(60, y - 10, width - 120, artistItemHeight - 20);
+      }
+
+      // Artist number as bold white text
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${i + 1}`, 100, y + imageSize / 2 + 16);
+
+      // Artist image (square like tracks) with larger size
+      const artistX = 140;
       if (artistImages[i]) {
         ctx.save();
-        drawRoundedRect(ctx, 120, y, imageSize, imageSize, 16);
+        drawRoundedRect(ctx, artistX, y, imageSize, imageSize, 16);
         ctx.clip();
-        ctx.drawImage(artistImages[i]!, 120, y, imageSize, imageSize);
+        ctx.drawImage(artistImages[i]!, artistX, y, imageSize, imageSize);
         ctx.restore();
       } else {
-        // Draw placeholder if image fails (square like tracks)
         const artistColors = ['#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43'];
         ctx.fillStyle = artistColors[i % artistColors.length];
-        drawRoundedRect(ctx, 120, y, imageSize, imageSize, 16);
+        drawRoundedRect(ctx, artistX, y, imageSize, imageSize, 16);
         ctx.fill();
         
-        // Add a person icon
         ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.font = '32px system-ui, -apple-system, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('👤', 120 + imageSize / 2, y + imageSize / 2 + 12);
+        ctx.fillText('👤', artistX + imageSize / 2, y + imageSize / 2 + 12);
       }
 
-      // Artist number
-      ctx.fillStyle = 'white';
-      ctx.font = 'bold 32px system-ui, -apple-system, sans-serif';
+      // Artist name properly centered vertically
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(`${i + 1}.`, 70, y + 50);
-
-      // Artist name (aligned with top songs text)
-      ctx.font = 'bold 28px system-ui, -apple-system, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = 'white';
-      const artistName = artist.name.length > 30 ? artist.name.substring(0, 30) + '...' : artist.name;
-      ctx.fillText(artistName, 220, y + 40);
-
-      // Genre (aligned with top songs text)
-      ctx.font = '22px system-ui, -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      const genre = artist.genres[0] || 'Various';
-      const displayGenre = genre.length > 35 ? genre.substring(0, 35) + '...' : genre;
-      ctx.fillText(displayGenre, 220, y + 70);
+      const artistName = artist.name.length > 20 ? artist.name.substring(0, 20) + '...' : artist.name;
+      ctx.fillText(artistName, 250, y + imageSize / 2 + 18);
     }
 
-    // Footer with user info (positioned for tall format)
+    // Footer with better spacing
     if (userName) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.font = '28px system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.font = '32px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`${userName}'s Music Wrapped`, width / 2, height - 80);
+      ctx.fillText(`${userName}'s Music Wrapped`, width / 2, height - 60);
     }
 
     // Convert canvas to data URL and store for current time range
