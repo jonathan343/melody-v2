@@ -1,6 +1,15 @@
 import NextAuth from "next-auth/next"
 import SpotifyProvider from "next-auth/providers/spotify"
 
+const getSpotifyScopes = () => {
+  const baseScopes = "user-read-email user-read-private user-top-read"
+  const playbackScopes = " user-read-recently-played playlist-read-private streaming user-modify-playback-state"
+  
+  const isPlaybackEnabled = process.env.ENABLE_PLAYBACK_FEATURE === "true"
+  
+  return isPlaybackEnabled ? `${baseScopes} ${playbackScopes}` : baseScopes
+}
+
 const authOptions = {
   providers: [
     SpotifyProvider({
@@ -8,7 +17,7 @@ const authOptions = {
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
       authorization: {
         params: {
-          scope: "user-read-email user-read-private user-top-read user-read-recently-played playlist-read-private streaming user-modify-playback-state"
+          scope: getSpotifyScopes()
         }
       }
     })

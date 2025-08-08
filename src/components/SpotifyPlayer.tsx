@@ -1,6 +1,7 @@
 "use client"
 
 import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer"
+import { isPlaybackFeatureEnabled } from "@/lib/spotify"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 
@@ -44,6 +45,11 @@ export default function SpotifyPlayer() {
       return () => clearInterval(interval)
     }
   }, [isPlaying, isDragging, duration])
+
+  // Return null if playback feature is disabled
+  if (!isPlaybackFeatureEnabled()) {
+    return null
+  }
 
   const handleSeek = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!duration) return

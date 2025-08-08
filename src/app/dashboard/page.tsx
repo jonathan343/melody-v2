@@ -3,10 +3,11 @@
 import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback, useRef } from "react"
-import { getTopTracks, getTopArtists } from "@/lib/spotify"
+import { getTopTracks, getTopArtists, isPlaybackFeatureEnabled } from "@/lib/spotify"
 import Image from "next/image"
 import Aurora from "@/components/Aurora"
 import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer"
+import { useAudioPreview } from "@/hooks/useAudioPreview"
 import { useMouseFollow } from "@/hooks/useMouseFollow"
 import SpotifyPlayer from "@/components/SpotifyPlayer"
 import ArtistInfoModal from "@/components/ArtistInfoModal"
@@ -24,6 +25,7 @@ interface SpotifyTrack {
   id: string
   name: string
   uri: string
+  preview_url: string | null
   artists: { name: string }[]
   album: { 
     name: string
@@ -66,8 +68,11 @@ export default function DashboardPage() {
   const [tracksCanScrollLeft, setTracksCanScrollLeft] = useState(false)
   const [tracksCanScrollRight, setTracksCanScrollRight] = useState(true)
   
-  // Spotify Web Playback SDK
+  // Spotify Web Playback SDK (for full playback when feature enabled)
   const { playTrack, togglePlayback, isReady, isPlaying, currentTrack } = useSpotifyPlayer()
+  
+  // Audio Preview playback (for 30-second previews)
+  const { currentTrackId, isPlaying: isPreviewPlaying, playPreview } = useAudioPreview()
   
   const checkScrollability = (element: HTMLDivElement, setCanScrollLeft: (value: boolean) => void, setCanScrollRight: (value: boolean) => void) => {
     const { scrollLeft, scrollWidth, clientWidth } = element
@@ -97,31 +102,45 @@ export default function DashboardPage() {
   
   // Handle track playback
   const handlePlayTrack = (track: SpotifyTrack) => {
-    if (!isReady) {
-      console.log('Player not ready')
-      return
-    }
-    
-    // If this track is currently playing, pause it
-    if (isTrackPlaying(track)) {
-      togglePlayback()
-    } else if (isCurrentTrack(track)) {
-      // If this is the current track but paused, resume it
-      togglePlayback()
+    if (isPlaybackFeatureEnabled()) {
+      // Use full Spotify Web Playback SDK when available
+      if (!isReady) {
+        console.log('Player not ready')
+        return
+      }
+      
+      // If this track is currently playing, pause it
+      if (isTrackPlaying(track)) {
+        togglePlayback()
+      } else if (isCurrentTrack(track)) {
+        // If this is the current track but paused, resume it
+        togglePlayback()
+      } else {
+        // Otherwise, play this new track
+        playTrack(track.uri)
+      }
     } else {
-      // Otherwise, play this new track
-      playTrack(track.uri)
+      // Use preview playback when full playback is disabled
+      playPreview(track.id, track.preview_url)
     }
   }
   
   // Check if a track is currently playing
   const isTrackPlaying = (track: SpotifyTrack) => {
-    return isPlaying && currentTrack && currentTrack.id === track.id
+    if (isPlaybackFeatureEnabled()) {
+      return isPlaying && currentTrack && currentTrack.id === track.id
+    } else {
+      return isPreviewPlaying && currentTrackId === track.id
+    }
   }
   
   // Check if a track is the current track (playing or paused)
   const isCurrentTrack = (track: SpotifyTrack) => {
-    return currentTrack && currentTrack.id === track.id
+    if (isPlaybackFeatureEnabled()) {
+      return currentTrack && currentTrack.id === track.id
+    } else {
+      return currentTrackId === track.id
+    }
   }
   
   // Handle artist info modal
@@ -304,7 +323,7 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
         {/* Spotify Player Status */}
-        {!isReady && (
+        {isPlaybackFeatureEnabled() && !isReady && (
           <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -484,9 +503,9 @@ export default function DashboardPage() {
                           onTouchStart={(e) => {
                             e.stopPropagation();
                           }}
-                          disabled={!isReady}
+                          disabled={isPlaybackFeatureEnabled() && !isReady}
                           className={`p-3 rounded-full transition-all duration-200 group touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center mx-auto ${
-                            !isReady 
+                            isPlaybackFeatureEnabled() && !isReady 
                               ? "bg-gray-500/50 text-gray-300 cursor-not-allowed" 
                               : isTrackPlaying(track)
                               ? "bg-green-500/80 text-white hover:bg-green-500 active:bg-green-600"
@@ -495,7 +514,7 @@ export default function DashboardPage() {
                           style={{ touchAction: 'manipulation' }}
                           aria-label={isTrackPlaying(track) ? "Currently playing" : "Play track"}
                         >
-                          {!isReady ? (
+                          {isPlaybackFeatureEnabled() && !isReady ? (
                             <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
                           ) : isTrackPlaying(track) ? (
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

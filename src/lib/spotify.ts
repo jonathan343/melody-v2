@@ -2,6 +2,10 @@ import { getSession } from "next-auth/react"
 
 const SPOTIFY_BASE_URL = "https://api.spotify.com/v1"
 
+export function isPlaybackFeatureEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_ENABLE_PLAYBACK_FEATURE === "true"
+}
+
 export async function getSpotifyApi() {
   const session = await getSession()
   

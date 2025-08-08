@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import type { Session } from 'next-auth';
 import SpotifyPlayerSingleton from '../lib/spotifyPlayerSingleton';
+import { isPlaybackFeatureEnabled } from '../lib/spotify';
 import type { SpotifyWebPlaybackPlayer, SpotifyWebPlaybackTrack } from '../types/spotify-web-playback';
 
 interface ExtendedSession extends Session {
@@ -36,6 +37,11 @@ export function useSpotifyPlayer() {
   const playerSingleton = SpotifyPlayerSingleton.getInstance();
 
   useEffect(() => {
+    // Don't initialize player if playback feature is disabled
+    if (!isPlaybackFeatureEnabled()) {
+      return;
+    }
+
     // Subscribe to player state changes
     const unsubscribe = playerSingleton.subscribe((state) => {
       setPlayerState(state);
