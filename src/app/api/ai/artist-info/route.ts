@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     })
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-nano",
       messages: [
         {
           role: "system",
@@ -68,11 +68,10 @@ export async function POST(request: NextRequest) {
           content: `Tell me about the musical artist: ${artistName}`
         }
       ],
-      max_tokens: 500,
-      temperature: 0.7,
+      reasoning_effort: "minimal",
+      max_completion_tokens: 600,
       response_format: { type: "json_object" }
     })
-
     const content = completion.choices[0]?.message?.content
     if (!content) {
       throw new Error('No content received from OpenAI')
