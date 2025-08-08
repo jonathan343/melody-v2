@@ -405,11 +405,11 @@ export default function ShareableCard({ topTracks, topArtists, timeRange, userNa
         </div>
       )}
 
-      <div className="flex space-x-4">
+      <div className="flex space-x-3">
         <button
           onClick={generateCard}
           disabled={isGenerating}
-          className="px-6 py-3 bg-spotify-green text-white font-semibold rounded-full hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-spotify-green text-white text-sm font-medium rounded-lg hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isGenerating ? 'Generating...' : 'Generate Card'}
         </button>
@@ -418,13 +418,13 @@ export default function ShareableCard({ topTracks, topArtists, timeRange, userNa
           <>
             <button
               onClick={shareCard}
-              className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
             >
               Share
             </button>
             <button
               onClick={downloadCard}
-              className="px-6 py-3 bg-gray-700 text-white font-semibold rounded-full hover:bg-gray-600 transition-colors"
+              className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors"
             >
               Download
             </button>
